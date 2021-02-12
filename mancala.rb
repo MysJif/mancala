@@ -1,14 +1,17 @@
-VERSION = "0.0.1"
+VERSION = '0.0.2'
 
-def prompt(message) # Message prompt format
+# Message prompt format
+def prompt(message)
   puts "=> #{message}"
 end
 
-def board_init() # Initializes a new board array
+# Initializes a new board array
+def board_init
   [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0]
 end
 
-def space_string(space) # Returns formatted space amounts for display
+# Returns formatted space amounts for display
+def space_string(space)
   if space > 9
     space
   else
@@ -16,21 +19,23 @@ def space_string(space) # Returns formatted space amounts for display
   end
 end
 
-def display(board) # Displays the provided board array in ASCII
+# Displays the provided board array in ASCII
+def display(board)
   puts "|   |[#{space_string(board[12])}][#{space_string(board[11])}][#{space_string(board[10])}][#{space_string(board[9])}][#{space_string(board[8])}][#{space_string(board[7])}]|   |"
   puts "| #{space_string(board[13])}|------------------------| #{space_string(board[6])}|"
   puts "|   |[#{space_string(board[0])}][#{space_string(board[1])}][#{space_string(board[2])}][#{space_string(board[3])}][#{space_string(board[4])}][#{space_string(board[5])}]|   |"
-  puts "      A   B   C   D   E   F"
+  puts '      A   B   C   D   E   F'
 end
 
-def move!(space, board, player) # Moves pieces around the board and determines if anything special happens.
+# Moves pieces around the board and determines if anything special happens.
+def move!(space, board, player)
   hand = board[space]
   count = space + 1
   board[space] = 0
   loop do
     board[count] += 1
     hand -= 1
-    if hand == 0
+    if hand.zero?
 
       break
     elsif count == 13
@@ -55,7 +60,8 @@ def move!(space, board, player) # Moves pieces around the board and determines i
   again?(count, player)
 end
 
-def opposite(space) # Returns opposite space from the provided space
+# Returns opposite space from the provided space
+def opposite(space)
   case space
   when 0
     12
@@ -84,33 +90,39 @@ def opposite(space) # Returns opposite space from the provided space
   end
 end
 
-def again?(final_space, player) # Determines if the player goes again
+# Determines if the player goes again
+def again?(final_space, player)
   (final_space == 6 && player == 1) || (final_space == 13 && player == 2)
 end
 
-def jackpot_player?(final_space, board) # Determines if the player landed on a jackpot
+# Determines if the player landed on a jackpot
+def jackpot_player?(final_space, board)
   board[final_space] == 1 &&
     final_space < 6 &&
-    board[opposite(final_space)] > 0
+    (board[opposite(final_space)]).positive?
 end
 
-def jackpot_computer?(final_space, board) # Determines if the computer landed on a jackpot
+# Determines if the computer landed on a jackpot
+def jackpot_computer?(final_space, board)
   board[final_space] == 1 &&
     final_space > 6 &&
     final_space < 13 &&
     board[opposite(final_space)] > 1
 end
 
-def empty?(board) # Determines if either player has an empty side.
-  (board[0] == 0 && board[1] == 0 && board[2] == 0 && board[3] == 0 && board[4] == 0 && board[5] == 0) ||
-  (board[7] == 0 && board[8] == 0 && board[9] == 0 && board[10] == 0 && board[11] == 0 && board[12] == 0)
+# Determines if either player has an empty side.
+def empty?(board)
+  ((board[0]).zero? && (board[1]).zero? && (board[2]).zero? && (board[3]).zero? && (board[4]).zero? && (board[5]).zero?) ||
+    ((board[7]).zero? && (board[8]).zero? && (board[9]).zero? && (board[10]).zero? && (board[11]).zero? && (board[12]).zero?)
 end
 
-def end!(board) # Shuffles each side's pieces to their pockets
+# Shuffles each side's pieces to their pockets
+def end!(board)
   count = 0
   pocket = 0
   loop do
     break if count == 14
+
     if count != 6 && count != 13
       pocket += board[count]
       board[count] = 0
@@ -122,45 +134,46 @@ def end!(board) # Shuffles each side's pieces to their pockets
   end
 end
 
-def winner!(board, score) # Displays scores, winner, and tallies up game wins
+# Displays scores, winner, and tallies up game wins
+def winner!(board, score)
   system 'clear'
   prompt "Player: #{board[6]}"
   prompt "Computer: #{board[13]}"
 
   if board[6] > board[13]
-    prompt "Player won!"
+    prompt 'Player won!'
     score[0] += 1
   elsif board[13] > board[6]
-    prompt "Computer won!"
+    prompt 'Computer won!'
     score[1] += 1
   else
     prompt "It's a Draw!"
   end
 
-  prompt "Games won:"
+  prompt 'Games won:'
   prompt "Player: #{score[0]} | Computer: #{score[1]}"
 end
 
-def empty_space?(space, board) # Determines if provided space is empty.
+# Determines if provided space is empty.
+def empty_space?(space, board)
   board[space] < 1
 end
 
-def computer(board) # Decides computer's turn.
+# Decides computer's turn.
+def computer(board)
   space = 12
-  puts "Computer logs."
   return if empty?(board)
+
   loop do # Detecting any Hole in One choices.
     puts space
     if board[space] == (13 - space)
-      puts "Computer space is HIO. Space is #{space}"
       break
     else
-      puts "Space not HIO. Space is #{space}"
       space -= 1
     end
 
     if space < 8 # Algorithm or Random Chance decision
-      if [true, false].sample #Algorithm
+      if [true, false].sample # Algorithm
         space = 12
         loop do
           if space == 7
@@ -183,49 +196,57 @@ def computer(board) # Decides computer's turn.
   space
 end
 
-prompt "Welcome to Mancala"
+prompt 'Welcome to Mancala'
 prompt "Version: #{VERSION}"
+
 score = [0, 0]
+
 loop do
-  board = board_init()
+  board = board_init
   loop do
     loop do
       break if empty?(board)
+
       system 'clear'
       display(board)
       space = ''
       loop do
-        prompt "Which space do you want to move?"
+        prompt 'Which space do you want to move?'
         space = gets.chomp.upcase
-
 
         case space
         when 'A'
           space = 0
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         when 'B'
           space = 1
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         when 'C'
           space = 2
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         when 'D'
           space = 3
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         when 'E'
           space = 4
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         when 'F'
           space = 5
           break unless empty_space?(space, board)
-          prompt "Selected space empty."
+
+          prompt 'Selected space empty.'
         else
-          prompt "Invalid selection."
+          prompt 'Invalid selection.'
         end
       end
       break unless move!(space, board, 1)
@@ -235,15 +256,16 @@ loop do
     prompt "Computer's turn."
     loop do
       break if empty?(board)
+
       display(board)
       space = computer(board)
       break unless move!(space, board, 2)
     end
-    break if empty?(board)    
+    break if empty?(board)
   end
   end!(board)
   winner!(board, score)
 
-  prompt "Do you want to play again? (Y / N)"
+  prompt 'Do you want to play again? (Y / N)'
   break unless gets.chomp.downcase == 'y'
 end
